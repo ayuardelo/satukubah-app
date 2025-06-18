@@ -7,6 +7,7 @@ import { getFirestore, collection, getDocs, doc, onSnapshot, updateDoc, incremen
 
 
 // --- KONFIGURASI FIREBASE ---
+// PERBAIKAN: Mengembalikan kunci API langsung untuk mengatasi error 'process not defined'
 const firebaseConfig = {
   apiKey: "AIzaSyDcLmds3v8CbpwvyW3EZR2GEkgdgMbCf9M",
   authDomain: "satukubah.firebaseapp.com",
@@ -222,6 +223,8 @@ const CheckoutPage = ({ product, onBack, onPurchase, paymentMethods, loadingPaym
     const [selectedCity, setSelectedCity] = useState('');
     const [selectedDistrict, setSelectedDistrict] = useState('');
     const [selectedVillage, setSelectedVillage] = useState('');
+    const [selectedColor, setSelectedColor] = useState('');
+    const [selectedSize, setSelectedSize] = useState('');
 
     const API_BASE_URL = 'https://www.emsifa.com/api-wilayah-indonesia/api';
 
@@ -274,6 +277,9 @@ const CheckoutPage = ({ product, onBack, onPurchase, paymentMethods, loadingPaym
         e.preventDefault();
         if (!name || !phone || !selectedVillage || !streetAddress) { alert("Harap lengkapi data penerima dan alamat."); return; }
         if (!selectedPayment) { alert("Silakan pilih metode pembayaran."); return; }
+        if (product.availableColors && product.availableColors.length > 0 && !selectedColor) { alert("Silakan pilih warna produk."); return; }
+        if (product.availableSizes && product.availableSizes.length > 0 && !selectedSize) { alert("Silakan pilih ukuran produk."); return; }
+        
         onPurchase({
             productName: product.name,
             quantity: quantity,
@@ -281,7 +287,9 @@ const CheckoutPage = ({ product, onBack, onPurchase, paymentMethods, loadingPaym
             customerName: name,
             customerPhone: phone,
             customerAddress: `${streetAddress}, ${villages.find(v=>v.id===selectedVillage)?.name}, ${districts.find(d=>d.id===selectedDistrict)?.name}, ${cities.find(c=>c.id===selectedCity)?.name}, ${provinces.find(p=>p.id===selectedProvince)?.name}`,
-            message: message
+            message: message,
+            color: selectedColor,
+            size: selectedSize,
         });
     };
 
@@ -295,6 +303,35 @@ const CheckoutPage = ({ product, onBack, onPurchase, paymentMethods, loadingPaym
                     <div className="w-10"></div>
                 </div>
                 <form onSubmit={handleSubmit} className="flex-grow overflow-y-auto p-4 space-y-4">
+                    <div className="bg-white p-4 rounded-lg shadow space-y-4">
+                        <h2 className="font-semibold">Detail Produk</h2>
+                        <div className="flex gap-4">
+                            <img src={product.images && product.images[0]} alt={product.name} className="w-20 h-20 rounded-md object-cover"/>
+                            <div>
+                                <h3 className="font-bold">{product.name}</h3>
+                                <p className="text-gray-600">Rp {price.toLocaleString('id-ID')}</p>
+                            </div>
+                        </div>
+                        {product.availableColors && product.availableColors.length > 0 && (
+                            <div>
+                                <label className="font-medium text-sm">Pilih Warna:</label>
+                                <select value={selectedColor} onChange={e => setSelectedColor(e.target.value)} className="w-full p-3 mt-1 border border-gray-300 rounded-lg bg-white">
+                                    <option value="">-- Pilih Warna --</option>
+                                    {product.availableColors.map(color => <option key={color} value={color}>{color}</option>)}
+                                </select>
+                            </div>
+                        )}
+                        {product.availableSizes && product.availableSizes.length > 0 && (
+                             <div>
+                                <label className="font-medium text-sm">Pilih Ukuran:</label>
+                                <select value={selectedSize} onChange={e => setSelectedSize(e.target.value)} className="w-full p-3 mt-1 border border-gray-300 rounded-lg bg-white">
+                                    <option value="">-- Pilih Ukuran --</option>
+                                    {product.availableSizes.map(size => <option key={size} value={size}>{size}</option>)}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="bg-white p-4 rounded-lg shadow space-y-4">
                         <h2 className="font-semibold">Data Penerima</h2>
                         <input type="text" placeholder="Nama Lengkap Penerima" value={name} onChange={e => setName(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg"/>
