@@ -619,7 +619,7 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
         setCampaignTitle(campaignData.title || '');
         setMapsUrl(campaignData.mapsUrl || '');
         setAboutText(aboutContent || '');
-    }, [campaignData.title, campaignData.mapsUrl, aboutContent]);
+    }, [campaignData, aboutContent]);
 
     const handleAction = async (action, data) => {
         setIsLoading(true);
