@@ -614,15 +614,14 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
 
   return (
     <>
-      {editingProduct && (
-        <ProductEditModal
-          key={editingProduct.id}
-          product={editingProduct}
-          onSave={(updated) => handleAction(props.updateProduct, updated)}
-          onClose={() => setEditingProduct(null)}
-          isLoading={isLoading}
-        />
-      )}
+{editingProduct && (
+  <ProductEditModal
+    product={editingProduct}
+    onSave={(updated) => handleAction(props.updateProduct, updated)}
+    onClose={() => setEditingProduct(null)}
+    isLoading={isLoading}
+  />
+)}
       <div className="flex flex-col h-full bg-gray-100 font-sans">
         <header className="p-4 flex items-center bg-white border-b sticky top-0 z-10">
           <button onClick={onBack} className="p-1 rounded-full hover:bg-gray-200"><ArrowLeftIcon className="h-5 w-5" /></button>
