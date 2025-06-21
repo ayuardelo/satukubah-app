@@ -95,10 +95,9 @@ const LiveNotification = ({ notification }) => {
     if (!notification || !isVisible) return null;
 
     const isDonation = notification.type === 'donation';
-    const actionText = isDonation ? 'baru saja berdonasi' : 'baru saja membeli';
+    const actionText = isDonation ? 'baru saja Donasi' : 'baru saja Checkout';
     const message = ` ${actionText} ${notification.detail || ''}`;
     
-    // --- PERUBAHAN Tampilan Notifikasi ---
     return (
         <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 p-3 bg-white/80 backdrop-blur-sm rounded-lg shadow-xl flex items-center w-11/12 max-w-sm transition-all duration-500 ease-in-out transform ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}>
             <div className={`flex-shrink-0 p-2 rounded-full ${isDonation ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-600'}`}>
@@ -458,16 +457,16 @@ const MainPage = ({ donationProps, productProps, prayerProps, sliderProps, onAbo
         </div>
         <div className="p-4 border-b">
           <h1 className="text-xl font-bold text-gray-800 mb-2">{donationProps.loading ? 'Memuat judul...' : donationProps.title}</h1>
-          <div className="mt-2 flex justify-between items-center text-sm text-gray-600 mb-2"><p><span className="font-bold text-[#0f8242]">Rp {donationProps.totalDonations.toLocaleString('id-ID')}</span> dan masih terus dikumpulkan</p></div>
           {donationProps.mapsUrl && (
-            <a href={donationProps.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-gray-500 hover:text-[#0f8242] transition-colors py-1 mb-2">
+            <a href={donationProps.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-gray-500 hover:text-[#0f8242] transition-colors py-1">
                 <MapPinIcon className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                 <span className="font-semibold text-sm">Masjid Nurul Iman</span>
             </a>
           )}
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2"><div className="bg-[#0f8242] h-2.5 rounded-full" style={{ width: `${donationProps.progress}%` }}></div></div>
+          <div className="mt-2 flex justify-between items-center text-sm text-gray-600"><p><span className="font-bold text-[#0f8242]">Rp {donationProps.totalDonations.toLocaleString('id-ID')}</span> dan masih terus dikumpulkan</p></div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 my-2"><div className="bg-[#0f8242] h-2.5 rounded-full" style={{ width: `${donationProps.progress}%` }}></div></div>
           <div className="flex justify-between items-center text-sm text-gray-600"><p><span className="font-bold">{donationProps.donorCount}</span> Donasi</p><p><span className="font-bold">∞</span> hari lagi</p></div>
-          <button onClick={() => productProps.navigate('donate')} className="w-full mt-4 bg-[#0f8242] text-white font-bold py-3 rounded-lg hover:bg-[#0c6b36]">Donasi Sekarang!</button>
+          <button onClick={() => productProps.navigate('donate')} className="w-full mt-4 bg-[#0f8242] text-white font-bold py-3 rounded-lg hover:bg-[#0c6b36]">Donasi Sekarang</button>
         </div>
         <div className="p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">Dukung Lewat Produk</h2>
