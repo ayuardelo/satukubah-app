@@ -518,64 +518,105 @@ const AboutUsPage = ({ onBack, aboutContent }) => {
     );
 };
 
-// --- Halaman Admin (diperbarui) ---
+import React, { useState, useEffect, useCallback } from 'react';
+
 const ProductEditModal = ({ product, onSave, onClose, isLoading }) => {
-    const [editedProduct, setEditedProduct] = useState(product);
+  const [editedProduct, setEditedProduct] = useState({
+    name: '',
+    price: '',
+    description: '',
+    specifications: '',
+    rating: '',
+    images: '',
+    availableColors: '',
+    availableSizes: '',
+  });
 
-    useEffect(() => {
-        setEditedProduct({
-            ...product,
-            images: Array.isArray(product.images) ? product.images.join(', ') : '',
-            availableColors: Array.isArray(product.availableColors) ? product.availableColors.join(', ') : '',
-            availableSizes: Array.isArray(product.availableSizes) ? product.availableSizes.join(', ') : '',
-        });
-    }, [product]);
+  useEffect(() => {
+    // Hanya dipanggil saat `product` berubah
+    if (product) {
+      setEditedProduct({
+        ...product,
+        images: Array.isArray(product.images) ? product.images.join(', ') : '',
+        availableColors: Array.isArray(product.availableColors) ? product.availableColors.join(', ') : '',
+        availableSizes: Array.isArray(product.availableSizes) ? product.availableSizes.join(', ') : '',
+      });
+    }
+  }, [product]);
 
-    const handleChange = (e, field) => {
-        setEditedProduct({ ...editedProduct, [field]: e.target.value });
+  const handleChange = useCallback((e, field) => {
+    const { value } = e.target;
+    setEditedProduct(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleSave = () => {
+    const productToSave = {
+      ...editedProduct,
+      price: Number(editedProduct.price) || 0,
+      rating: Number(editedProduct.rating) || 0,
+      images: editedProduct.images.split(',').map(s => s.trim()).filter(Boolean),
+      availableColors: editedProduct.availableColors.split(',').map(s => s.trim()).filter(Boolean),
+      availableSizes: editedProduct.availableSizes.split(',').map(s => s.trim()).filter(Boolean),
     };
+    onSave(productToSave);
+  };
 
-    const handleSave = () => {
-        const productToSave = {
-            ...editedProduct,
-            price: Number(editedProduct.price) || 0,
-            rating: Number(editedProduct.rating) || 0,
-            images: editedProduct.images.split(',').map(s => s.trim()).filter(s => s),
-            availableColors: editedProduct.availableColors.split(',').map(s => s.trim()).filter(s => s),
-            availableSizes: editedProduct.availableSizes.split(',').map(s => s.trim()).filter(s => s),
-        };
-        onSave(productToSave);
-    };
-    
-    const AdminInput = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><input type="text" value={value} onChange={onChange} placeholder={placeholder || label} className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
-    const AdminTextarea = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><textarea value={value} onChange={onChange} placeholder={placeholder || label} rows="3" className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
+  const AdminInput = React.memo(({ label, value, onChange, placeholder }) => (
+    <div className="mb-2">
+      <label className="text-xs font-bold text-gray-600">{label}</label>
+      <input
+        type="text"
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder || label}
+        className="w-full p-1.5 border border-gray-400 rounded-sm"
+      />
+    </div>
+  ));
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-                <header className="p-3 border-b flex justify-between items-center">
-                    <h2 className="font-bold">Edit Produk</h2>
-                    <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200"><CloseIcon/></button>
-                </header>
-                <div className="p-4 space-y-2 overflow-y-auto">
-                    <AdminInput label="Nama Produk" value={editedProduct.name} onChange={e => handleChange(e, 'name')} />
-                    <AdminInput label="Harga Produk" value={editedProduct.price} onChange={e => handleChange(e, 'price')} />
-                    <AdminTextarea label="Deskripsi Produk" value={editedProduct.description} onChange={e => handleChange(e, 'description')} />
-                    <AdminTextarea label="Spesifikasi Produk" value={editedProduct.specifications} onChange={e => handleChange(e, 'specifications')} />
-                    <AdminInput label="Rating Produk" value={editedProduct.rating} onChange={e => handleChange(e, 'rating')} />
-                    <AdminTextarea label="URL Gambar (pisahkan dgn koma)" value={editedProduct.images} onChange={e => handleChange(e, 'images')} />
-                    <AdminInput label="Warna (pisahkan dgn koma)" value={editedProduct.availableColors} onChange={e => handleChange(e, 'availableColors')} />
-                    <AdminInput label="Ukuran (pisahkan dgn koma)" value={editedProduct.availableSizes} onChange={e => handleChange(e, 'availableSizes')} />
-                </div>
-                 <footer className="p-3 border-t flex justify-end gap-2">
-                    <button onClick={onClose} className="px-4 py-1.5 rounded-md bg-gray-200 hover:bg-gray-300">Batal</button>
-                    <button onClick={handleSave} disabled={isLoading} className="px-4 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400">
-                        {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
-                    </button>
-                </footer>
-            </div>
+  const AdminTextarea = React.memo(({ label, value, onChange, placeholder }) => (
+    <div className="mb-2">
+      <label className="text-xs font-bold text-gray-600">{label}</label>
+      <textarea
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder || label}
+        rows="3"
+        className="w-full p-1.5 border border-gray-400 rounded-sm"
+      />
+    </div>
+  ));
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+        <header className="p-3 border-b flex justify-between items-center">
+          <h2 className="font-bold">Edit Produk</h2>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">×</button>
+        </header>
+        <div className="p-4 space-y-2 overflow-y-auto">
+          <AdminInput label="Nama Produk" value={editedProduct.name} onChange={(e) => handleChange(e, 'name')} />
+          <AdminInput label="Harga Produk" value={editedProduct.price} onChange={(e) => handleChange(e, 'price')} />
+          <AdminTextarea label="Deskripsi Produk" value={editedProduct.description} onChange={(e) => handleChange(e, 'description')} />
+          <AdminTextarea label="Spesifikasi Produk" value={editedProduct.specifications} onChange={(e) => handleChange(e, 'specifications')} />
+          <AdminInput label="Rating Produk" value={editedProduct.rating} onChange={(e) => handleChange(e, 'rating')} />
+          <AdminTextarea label="URL Gambar (pisahkan dgn koma)" value={editedProduct.images} onChange={(e) => handleChange(e, 'images')} />
+          <AdminInput label="Warna (pisahkan dgn koma)" value={editedProduct.availableColors} onChange={(e) => handleChange(e, 'availableColors')} />
+          <AdminInput label="Ukuran (pisahkan dgn koma)" value={editedProduct.availableSizes} onChange={(e) => handleChange(e, 'availableSizes')} />
         </div>
-    );
+        <footer className="p-3 border-t flex justify-end gap-2">
+          <button onClick={onClose} className="px-4 py-1.5 rounded-md bg-gray-200 hover:bg-gray-300">Batal</button>
+          <button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="px-4 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
 };
 
 const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
