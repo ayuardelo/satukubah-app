@@ -460,10 +460,10 @@ const MainPage = ({ donationProps, productProps, prayerProps, sliderProps, onAbo
           {donationProps.mapsUrl && (
             <a href={donationProps.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-gray-500 hover:text-[#0f8242] transition-colors py-1">
                 <MapPinIcon className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-                <span className="font-semibold text-xs">Masjid Nurul Iman</span>
+                <span className="font-semibold text-sm">Masjid Nurul Iman</span>
             </a>
           )}
-          <div className="mt-1 flex justify-between items-center text-sm text-gray-600 mb-1"><p><span className="font-bold text-[#0f8242]">Rp {donationProps.totalDonations.toLocaleString('id-ID')}</span> dan masih terus dikumpulkan</p></div>
+          <div className="mt-2 flex justify-between items-center text-sm text-gray-600"><p><span className="font-bold text-[#0f8242]">Rp {donationProps.totalDonations.toLocaleString('id-ID')}</span> dan masih terus dikumpulkan</p></div>
           <div className="w-full bg-gray-200 rounded-full h-2.5 my-2"><div className="bg-[#0f8242] h-2.5 rounded-full" style={{ width: `${donationProps.progress}%` }}></div></div>
           <div className="flex justify-between items-center text-sm text-gray-600"><p><span className="font-bold">{donationProps.donorCount}</span> Donasi</p><p><span className="font-bold">∞</span> hari lagi</p></div>
           <button onClick={() => productProps.navigate('donate')} className="w-full mt-4 bg-[#0f8242] text-white font-bold py-3 rounded-lg hover:bg-[#0c6b36]">Donasi Sekarang</button>
@@ -520,99 +520,62 @@ const AboutUsPage = ({ onBack, aboutContent }) => {
 
 // --- Halaman Admin (diperbarui) ---
 const ProductEditModal = ({ product, onSave, onClose, isLoading }) => {
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-  const [specifications, setSpecifications] = useState('');
-  const [rating, setRating] = useState('');
-  const [images, setImages] = useState('');
-  const [availableColors, setAvailableColors] = useState('');
-  const [availableSizes, setAvailableSizes] = useState('');
+    const [editedProduct, setEditedProduct] = useState(product);
 
-  useEffect(() => {
-    if (product) {
-      setName(product.name || '');
-      setPrice(product.price?.toString() || '');
-      setDescription(product.description || '');
-      setSpecifications(product.specifications || '');
-      setRating(product.rating?.toString() || '');
-      setImages(Array.isArray(product.images) ? product.images.join(', ') : '');
-      setAvailableColors(Array.isArray(product.availableColors) ? product.availableColors.join(', ') : '');
-      setAvailableSizes(Array.isArray(product.availableSizes) ? product.availableSizes.join(', ') : '');
-    }
-  }, [product]);
+    useEffect(() => {
+        setEditedProduct({
+            ...product,
+            images: Array.isArray(product.images) ? product.images.join(', ') : '',
+            availableColors: Array.isArray(product.availableColors) ? product.availableColors.join(', ') : '',
+            availableSizes: Array.isArray(product.availableSizes) ? product.availableSizes.join(', ') : '',
+        });
+    }, [product]);
 
-  const handleSave = () => {
-    const productToSave = {
-      ...product,
-      name: name.trim(),
-      price: Number(price) || 0,
-      description,
-      specifications,
-      rating: Number(rating) || 0,
-      images: images.split(',').map(s => s.trim()).filter(Boolean),
-      availableColors: availableColors.split(',').map(s => s.trim()).filter(Boolean),
-      availableSizes: availableSizes.split(',').map(s => s.trim()).filter(Boolean),
+    const handleChange = (e, field) => {
+        setEditedProduct({ ...editedProduct, [field]: e.target.value });
     };
-    onSave(productToSave);
-  };
 
-  const AdminInput = ({ label, value, onChange, placeholder }) => (
-    <div className="mb-2">
-      <label className="text-xs font-bold text-gray-600">{label}</label>
-      <input
-        type="text"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder || label}
-        className="w-full p-1.5 border border-gray-400 rounded-sm"
-      />
-    </div>
-  );
+    const handleSave = () => {
+        const productToSave = {
+            ...editedProduct,
+            price: Number(editedProduct.price) || 0,
+            rating: Number(editedProduct.rating) || 0,
+            images: editedProduct.images.split(',').map(s => s.trim()).filter(s => s),
+            availableColors: editedProduct.availableColors.split(',').map(s => s.trim()).filter(s => s),
+            availableSizes: editedProduct.availableSizes.split(',').map(s => s.trim()).filter(s => s),
+        };
+        onSave(productToSave);
+    };
+    
+    const AdminInput = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><input type="text" value={value} onChange={onChange} placeholder={placeholder || label} className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
+    const AdminTextarea = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><textarea value={value} onChange={onChange} placeholder={placeholder || label} rows="3" className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
 
-  const AdminTextarea = ({ label, value, onChange, placeholder }) => (
-    <div className="mb-2">
-      <label className="text-xs font-bold text-gray-600">{label}</label>
-      <textarea
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder || label}
-        rows="3"
-        className="w-full p-1.5 border border-gray-400 rounded-sm"
-      />
-    </div>
-  );
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        <header className="p-3 border-b flex justify-between items-center">
-          <h2 className="font-bold">Edit Produk</h2>
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200">×</button>
-        </header>
-        <div className="p-4 space-y-2 overflow-y-auto">
-          <AdminInput label="Nama Produk" value={name} onChange={(e) => setName(e.target.value)} />
-          <AdminInput label="Harga Produk" value={price} onChange={(e) => setPrice(e.target.value)} />
-          <AdminTextarea label="Deskripsi Produk" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <AdminTextarea label="Spesifikasi Produk" value={specifications} onChange={(e) => setSpecifications(e.target.value)} />
-          <AdminInput label="Rating Produk" value={rating} onChange={(e) => setRating(e.target.value)} />
-          <AdminTextarea label="URL Gambar (pisahkan dgn koma)" value={images} onChange={(e) => setImages(e.target.value)} />
-          <AdminInput label="Warna (pisahkan dgn koma)" value={availableColors} onChange={(e) => setAvailableColors(e.target.value)} />
-          <AdminInput label="Ukuran (pisahkan dgn koma)" value={availableSizes} onChange={(e) => setAvailableSizes(e.target.value)} />
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+                <header className="p-3 border-b flex justify-between items-center">
+                    <h2 className="font-bold">Edit Produk</h2>
+                    <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200"><CloseIcon/></button>
+                </header>
+                <div className="p-4 space-y-2 overflow-y-auto">
+                    <AdminInput label="Nama Produk" value={editedProduct.name} onChange={e => handleChange(e, 'name')} />
+                    <AdminInput label="Harga Produk" value={editedProduct.price} onChange={e => handleChange(e, 'price')} />
+                    <AdminTextarea label="Deskripsi Produk" value={editedProduct.description} onChange={e => handleChange(e, 'description')} />
+                    <AdminTextarea label="Spesifikasi Produk" value={editedProduct.specifications} onChange={e => handleChange(e, 'specifications')} />
+                    <AdminInput label="Rating Produk" value={editedProduct.rating} onChange={e => handleChange(e, 'rating')} />
+                    <AdminTextarea label="URL Gambar (pisahkan dgn koma)" value={editedProduct.images} onChange={e => handleChange(e, 'images')} />
+                    <AdminInput label="Warna (pisahkan dgn koma)" value={editedProduct.availableColors} onChange={e => handleChange(e, 'availableColors')} />
+                    <AdminInput label="Ukuran (pisahkan dgn koma)" value={editedProduct.availableSizes} onChange={e => handleChange(e, 'availableSizes')} />
+                </div>
+                 <footer className="p-3 border-t flex justify-end gap-2">
+                    <button onClick={onClose} className="px-4 py-1.5 rounded-md bg-gray-200 hover:bg-gray-300">Batal</button>
+                    <button onClick={handleSave} disabled={isLoading} className="px-4 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400">
+                        {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
+                    </button>
+                </footer>
+            </div>
         </div>
-        <footer className="p-3 border-t flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-1.5 rounded-md bg-gray-200 hover:bg-gray-300">Batal</button>
-          <button
-            onClick={handleSave}
-            disabled={isLoading}
-            className="px-4 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400"
-          >
-            {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
-          </button>
-        </footer>
-      </div>
-    </div>
-  );
+    );
 };
 
 const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
@@ -681,13 +644,13 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
     const deletePaymentMethod = async (id) => await deleteDoc(doc(db, 'paymentMethods', id));
     const updateAboutUs = async () => await setDoc(doc(db, 'aboutUs', 'main'), { content: aboutText });
 
-    const AdminInput = ({ label, value, onChange, placeholder, disabled = false }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><input type="text" value={value} onChange={onChange} placeholder={placeholder || label} disabled={disabled} className="w-full p-1.5 border border-gray-400 rounded-sm disabled:bg-gray-100 disabled:text-gray-500" /></div> );
+    const AdminInput = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><input type="text" value={value} onChange={onChange} placeholder={placeholder || label} className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
     const AdminTextarea = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><textarea value={value} onChange={onChange} placeholder={placeholder || label} rows="4" className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
     const AdminButton = ({ onClick, children, color = 'green' }) => ( <button onClick={() => handleAction(onClick)} disabled={isLoading} className={`w-full p-1.5 text-white rounded-sm bg-${color}-600 hover:bg-${color}-700 disabled:bg-gray-400`}>{isLoading ? 'Menyimpan...' : children}</button> );
 
     return (
         <>
-            {editingProduct && <ProductEditModal product={{ ...editingProduct }} onSave={(updated) => handleAction(updateProduct, updated)} onClose={() => setEditingProduct(null)} isLoading={isLoading} />}
+            {editingProduct && <ProductEditModal product={editingProduct} onSave={(updated) => handleAction(updateProduct, updated)} onClose={() => setEditingProduct(null)} isLoading={isLoading} />}
             <div className="flex flex-col h-full bg-gray-100 font-sans">
                 <header className="p-4 flex items-center bg-white border-b sticky top-0 z-10">
                     <button onClick={onBack} className="p-1 rounded-full hover:bg-gray-200"><ArrowLeftIcon className="h-5 w-5" /></button>
@@ -707,8 +670,6 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
                             <AdminSection title="Campaign">
                                 <AdminInput label="Judul" value={campaignTitle} onChange={e => setCampaignTitle(e.target.value)} />
                                 <AdminInput label="URL Google Maps" value={mapsUrl} onChange={e => setMapsUrl(e.target.value)} />
-                                <AdminInput label="Total Donasi (Otomatis)" value={`Rp ${(campaignData.totalDonations || 0).toLocaleString('id-ID')}`} disabled />
-                                <AdminInput label="Jumlah Donatur (Otomatis)" value={campaignData.donorCount || 0} disabled />
                                 <AdminButton onClick={updateCampaign}>Update Campaign</AdminButton>
                             </AdminSection>
                         </div>
