@@ -585,9 +585,9 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
 
     // Form states
     const [sliderUrl, setSliderUrl] = useState('');
-    const [campaignTitle, setCampaignTitle] = useState('');
-    const [mapsUrl, setMapsUrl] = useState('');
-    const [aboutText, setAboutText] = useState('');
+    const [campaignTitle, setCampaignTitle] = useState(campaignData.title || '');
+    const [mapsUrl, setMapsUrl] = useState(campaignData.mapsUrl || '');
+    const [aboutText, setAboutText] = useState(aboutContent || '');
     const [payment, setPayment] = useState({ name: '', logo: '', type: 'e-wallet', order: 100 });
     const [product, setProduct] = useState({ name: '', price: '', description: '', specifications: '', rating: '', images: '', availableColors: '', availableSizes: '' });
 
@@ -613,13 +613,6 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
             playSound();
         }
     }, [allOrders]);
-
-
-    useEffect(() => {
-        setCampaignTitle(campaignData.title || '');
-        setMapsUrl(campaignData.mapsUrl || '');
-        setAboutText(aboutContent || '');
-    }, [campaignData, aboutContent]);
 
     const handleAction = async (action, data) => {
         setIsLoading(true);
