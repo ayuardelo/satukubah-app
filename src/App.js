@@ -460,10 +460,10 @@ const MainPage = ({ donationProps, productProps, prayerProps, sliderProps, onAbo
           {donationProps.mapsUrl && (
             <a href={donationProps.mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-gray-500 hover:text-[#0f8242] transition-colors py-1">
                 <MapPinIcon className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-                <span className="font-semibold text-sm">Masjid Nurul Iman</span>
+                <span className="font-semibold text-xs">Masjid Nurul Iman</span>
             </a>
           )}
-          <div className="mt-2 flex justify-between items-center text-sm text-gray-600"><p><span className="font-bold text-[#0f8242]">Rp {donationProps.totalDonations.toLocaleString('id-ID')}</span> dan masih terus dikumpulkan</p></div>
+          <div className="mt-1 flex justify-between items-center text-sm text-gray-600 mb-1"><p><span className="font-bold text-[#0f8242]">Rp {donationProps.totalDonations.toLocaleString('id-ID')}</span> dan masih terus dikumpulkan</p></div>
           <div className="w-full bg-gray-200 rounded-full h-2.5 my-2"><div className="bg-[#0f8242] h-2.5 rounded-full" style={{ width: `${donationProps.progress}%` }}></div></div>
           <div className="flex justify-between items-center text-sm text-gray-600"><p><span className="font-bold">{donationProps.donorCount}</span> Donasi</p><p><span className="font-bold">∞</span> hari lagi</p></div>
           <button onClick={() => productProps.navigate('donate')} className="w-full mt-4 bg-[#0f8242] text-white font-bold py-3 rounded-lg hover:bg-[#0c6b36]">Donasi Sekarang</button>
@@ -644,7 +644,7 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
     const deletePaymentMethod = async (id) => await deleteDoc(doc(db, 'paymentMethods', id));
     const updateAboutUs = async () => await setDoc(doc(db, 'aboutUs', 'main'), { content: aboutText });
 
-    const AdminInput = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><input type="text" value={value} onChange={onChange} placeholder={placeholder || label} className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
+    const AdminInput = ({ label, value, onChange, placeholder, disabled = false }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><input type="text" value={value} onChange={onChange} placeholder={placeholder || label} disabled={disabled} className="w-full p-1.5 border border-gray-400 rounded-sm disabled:bg-gray-100 disabled:text-gray-500" /></div> );
     const AdminTextarea = ({ label, value, onChange, placeholder }) => ( <div className="mb-2"><label className="text-xs font-bold text-gray-600">{label}</label><textarea value={value} onChange={onChange} placeholder={placeholder || label} rows="4" className="w-full p-1.5 border border-gray-400 rounded-sm" /></div> );
     const AdminButton = ({ onClick, children, color = 'green' }) => ( <button onClick={() => handleAction(onClick)} disabled={isLoading} className={`w-full p-1.5 text-white rounded-sm bg-${color}-600 hover:bg-${color}-700 disabled:bg-gray-400`}>{isLoading ? 'Menyimpan...' : children}</button> );
 
@@ -670,6 +670,8 @@ const AdminPage = ({ onBack, onLogout, allOrders, ...props }) => {
                             <AdminSection title="Campaign">
                                 <AdminInput label="Judul" value={campaignTitle} onChange={e => setCampaignTitle(e.target.value)} />
                                 <AdminInput label="URL Google Maps" value={mapsUrl} onChange={e => setMapsUrl(e.target.value)} />
+                                <AdminInput label="Total Donasi (Otomatis)" value={`Rp ${(campaignData.totalDonations || 0).toLocaleString('id-ID')}`} disabled />
+                                <AdminInput label="Jumlah Donatur (Otomatis)" value={campaignData.donorCount || 0} disabled />
                                 <AdminButton onClick={updateCampaign}>Update Campaign</AdminButton>
                             </AdminSection>
                         </div>
